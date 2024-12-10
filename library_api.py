@@ -2,6 +2,7 @@ from flask import Flask, jsonify, request
 
 app = Flask(__name__)
 
+# List of books
 books = [
     {'id': 1, 'title': 'The lord of rings', 'author': 'J.R.R'},
     {'id': 2, 'title': 'Harry potter and the Sorcerer\'s Stone', 'author': 'J.K'}
@@ -12,6 +13,12 @@ def find_book(book_id):
         if book['id'] == book_id:
             return book
     return None
+
+def get_next_book_id():
+    if books:
+        return max(book['id'] for book in books) + 1  
+    else:
+        return 1  
 
 @app.route('/books', methods=['GET'])
 def get_books():
@@ -30,8 +37,10 @@ def add_books():
     new_books = request.get_json()
     if isinstance(new_books, list):  
         for book in new_books:
-            if 'id' not in book or 'title' not in book or 'author' not in book:
-                return jsonify({'error': 'Each book must have an id, title, and author'}), 400
+            if 'title' not in book or 'author' not in book:
+                return jsonify({'error': 'Each book must have a title and author'}), 400
+            # Generate the next available ID for the new book
+            book['id'] = get_next_book_id()
             books.append(book)
         return jsonify({'message': 'Books added successfully'}), 201
     else:
