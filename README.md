@@ -7,8 +7,6 @@ Welcome to the **Library API**, a RESTful API built using Flask for managing boo
   - Manage books, authors, and users effortlessly.
 - **Search Functionality**:
   - Search for books by title, author, or genre.
-- **User Authentication**:
-  - Secure login and registration endpoints using JWT.
 - **Customizable**:
   - Easily extend and integrate with other services.
 
