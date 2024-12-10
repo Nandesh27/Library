@@ -23,7 +23,7 @@ Welcome to the **Library API**, a RESTful API built using Flask for managing boo
 
 1. **Clone the Repository**:
    ```bash
-   git clone https://github.com/your-username/library-api.git
+   git clone https://github.com/Nandesh27/library-api.git
    cd library-api
    ```
 
