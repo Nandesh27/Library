@@ -2,7 +2,6 @@ from flask import Flask, jsonify, request
 
 app = Flask(__name__)
 
-# List of books
 books = [
     {'id': 1, 'title': 'The lord of rings', 'author': 'J.R.R'},
     {'id': 2, 'title': 'Harry potter and the Sorcerer\'s Stone', 'author': 'J.K'}
@@ -39,7 +38,6 @@ def add_books():
         for book in new_books:
             if 'title' not in book or 'author' not in book:
                 return jsonify({'error': 'Each book must have a title and author'}), 400
-            # Generate the next available ID for the new book
             book['id'] = get_next_book_id()
             books.append(book)
         return jsonify({'message': 'Books added successfully'}), 201
