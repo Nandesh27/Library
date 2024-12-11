@@ -58,7 +58,7 @@ def delete_book(book_id):
     book = find_book(book_id)
     if book:
         books.remove(book)
-        return jsonify({'message': 'Book deleted successfully!!'})
+        return jsonify({'message': 'Book deleted successfully!'})
     else:
         return jsonify({'error': 'Book not found!'}), 404
 
