@@ -1,49 +1,53 @@
 from flask import Flask, jsonify, request
-from flask_sqlalchemy import SQLAlchemy
+import mysql.connector
 
 app = Flask(__name__)
 
-app.config['SQLALCHEMY_DATABASE_URI'] = 'mysql://root:12345678@localhost/Library'  
-app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False  
-db = SQLAlchemy(app)
-
-class Book(db.Model):
-    __tablename__ = 'books'
-    id = db.Column(db.Integer, primary_key=True)
-    title = db.Column(db.String(255), nullable=False)
-    author = db.Column(db.String(255), nullable=False)
-
-    def __init__(self, title, author):
-        self.title = title
-        self.author = author
-
-    def to_dict(self):
-        return {"id": self.id, "title": self.title, "author": self.author}
+def get_db_connection():
+    conn = mysql.connector.connect(
+        host='localhost',
+        user='root',  
+        password='password',  
+        database='library_db'  
+    )
+    return conn
 
 @app.route('/books', methods=['GET'])
 def get_books():
-    books = Book.query.all()  
-    return jsonify({'books': [book.to_dict() for book in books]})
+    conn = get_db_connection()
+    cursor = conn.cursor(dictionary=True)
+    cursor.execute('SELECT * FROM books')
+    books = cursor.fetchall()
+    cursor.close()
+    conn.close()
+    return jsonify({'books': books})
 
-# Route to get a specific book by id
 @app.route('/books/<int:book_id>', methods=['GET'])
 def get_specific_book(book_id):
-    book = Book.query.get(book_id)  
+    conn = get_db_connection()
+    cursor = conn.cursor(dictionary=True)
+    cursor.execute('SELECT * FROM books WHERE id = %s', (book_id,))
+    book = cursor.fetchone()
+    cursor.close()
+    conn.close()
     if book:
-        return jsonify({'book': book.to_dict()})
+        return jsonify({'book': book})
     else:
         return jsonify({'error': 'Book Not Found!'}), 404
 
 @app.route('/books', methods=['POST'])
 def add_books():
     new_books = request.get_json()
-    if isinstance(new_books, list):
-        for book_data in new_books:
-            if 'title' not in book_data or 'author' not in book_data:
+    if isinstance(new_books, list):  
+        conn = get_db_connection()
+        cursor = conn.cursor()
+        for book in new_books:
+            if 'title' not in book or 'author' not in book:
                 return jsonify({'error': 'Each book must have a title and author'}), 400
-            new_book = Book(title=book_data['title'], author=book_data['author'])
-            db.session.add(new_book)
-        db.session.commit()
+            cursor.execute('INSERT INTO books (title, author) VALUES (%s, %s)', (book['title'], book['author']))
+        conn.commit()
+        cursor.close()
+        conn.close()
         return jsonify({'message': 'Books added successfully'}), 201
     else:
         return jsonify({'error': 'Expected a list of books!'}), 400
@@ -51,26 +55,38 @@ def add_books():
 @app.route('/books/<int:book_id>', methods=['PUT'])
 def update_book(book_id):
     book_data = request.get_json()
-    book = Book.query.get(book_id)
+    conn = get_db_connection()
+    cursor = conn.cursor()
+    cursor.execute('SELECT * FROM books WHERE id = %s', (book_id,))
+    book = cursor.fetchone()
     if book:
-        book.title = book_data.get('title', book.title)
-        book.author = book_data.get('author', book.author)
-        db.session.commit()
+        cursor.execute('UPDATE books SET title = %s, author = %s WHERE id = %s',
+                       (book_data['title'], book_data['author'], book_id))
+        conn.commit()
+        cursor.close()
+        conn.close()
         return jsonify({'message': 'Book updated successfully'})
     else:
+        cursor.close()
+        conn.close()
         return jsonify({'error': 'Book not found!'}), 404
 
 @app.route('/books/<int:book_id>', methods=['DELETE'])
 def delete_book(book_id):
-    book = Book.query.get(book_id)
+    conn = get_db_connection()
+    cursor = conn.cursor()
+    cursor.execute('SELECT * FROM books WHERE id = %s', (book_id,))
+    book = cursor.fetchone()
     if book:
-        db.session.delete(book)
-        db.session.commit()
+        cursor.execute('DELETE FROM books WHERE id = %s', (book_id,))
+        conn.commit()
+        cursor.close()
+        conn.close()
         return jsonify({'message': 'Book deleted successfully'})
     else:
+        cursor.close()
+        conn.close()
         return jsonify({'error': 'Book not found!'}), 404
 
 if __name__ == '__main__':
-    with app.app_context():
-        db.create_all() 
     app.run(debug=True)
