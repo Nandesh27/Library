@@ -29,7 +29,7 @@ def get_specific_book(book_id):
     if book:
         return jsonify({'book': book})
     else:
-        return jsonify({'error': 'Book Not Found'}), 404
+        return jsonify({'error': 'Book Not Found!'}), 404
 
 @app.route('/books', methods=['POST'])
 def add_books():
@@ -42,7 +42,7 @@ def add_books():
             books.append(book)
         return jsonify({'message': 'Books added successfully'}), 201
     else:
-        return jsonify({'error': 'Expected a list of books'}), 400
+        return jsonify({'error': 'Expected a list of books!'}), 400
 
 @app.route('/books/<int:book_id>', methods=['PUT'])
 def update_book(book_id):
@@ -51,7 +51,7 @@ def update_book(book_id):
         book.update(request.get_json())
         return jsonify({'message': 'Book updated successfully'})
     else:
-        return jsonify({'error': 'Book not found'}), 404
+        return jsonify({'error': 'Book not found!'}), 404
 
 @app.route('/books/<int:book_id>', methods=['DELETE'])
 def delete_book(book_id):
@@ -60,7 +60,7 @@ def delete_book(book_id):
         books.remove(book)
         return jsonify({'message': 'Book deleted successfully'})
     else:
-        return jsonify({'error': 'Book not found'}), 404
+        return jsonify({'error': 'Book not found!'}), 404
 
 if __name__ == '__main__':
     app.run(debug=True)
