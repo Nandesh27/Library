@@ -5,7 +5,7 @@ app = Flask(__name__)
 
 books = [
     {'id': 1, 'title': 'The lord of rings', 'author': 'J.R.R'},
-    {'id': 2, 'title': 'Harry potter and the Sorcerer\'s Stone', 'author': 'J.K'}
+    {'id': 2, 'title': 'Harry potter and the Sorcerer\'s Stone', 'author': 'J.k'}
 ]
 
 app.config['MYSQL_HOST'] = 'localhost' 
