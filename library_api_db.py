@@ -16,7 +16,7 @@ def get_db_connection():
 def get_books():
     conn = get_db_connection()
     cursor = conn.cursor(dictionary=True)
-    cursor.execute('SELECT * FROM books')
+    cursor.execute('SELECT * FROM Library_books')
     books = cursor.fetchall()
     cursor.close()
     conn.close()
@@ -26,7 +26,7 @@ def get_books():
 def get_specific_book(book_id):
     conn = get_db_connection()
     cursor = conn.cursor(dictionary=True)
-    cursor.execute('SELECT * FROM books WHERE id = %s', (book_id,))
+    cursor.execute('SELECT * FROM Library_books WHERE id = %s', (book_id,))
     book = cursor.fetchone()
     cursor.close()
     conn.close()
@@ -44,7 +44,8 @@ def add_books():
         for book in new_books:
             if 'title' not in book or 'author' not in book:
                 return jsonify({'error': 'Each book must have a title and author'}), 400
-            cursor.execute('INSERT INTO books (title, author) VALUES (%s, %s)', (book['title'], book['author']))
+            cursor.execute('INSERT INTO Library_books (title, author) VALUES (%s, %s)', 
+                           (book['title'], book['author']))
         conn.commit()
         cursor.close()
         conn.close()
@@ -57,10 +58,10 @@ def update_book(book_id):
     book_data = request.get_json()
     conn = get_db_connection()
     cursor = conn.cursor()
-    cursor.execute('SELECT * FROM books WHERE id = %s', (book_id,))
+    cursor.execute('SELECT * FROM Library_books WHERE id = %s', (book_id,))
     book = cursor.fetchone()
     if book:
-        cursor.execute('UPDATE books SET title = %s, author = %s WHERE id = %s',
+        cursor.execute('UPDATE Library_books SET title = %s, author = %s WHERE id = %s',
                        (book_data['title'], book_data['author'], book_id))
         conn.commit()
         cursor.close()
@@ -75,10 +76,10 @@ def update_book(book_id):
 def delete_book(book_id):
     conn = get_db_connection()
     cursor = conn.cursor()
-    cursor.execute('SELECT * FROM books WHERE id = %s', (book_id,))
+    cursor.execute('SELECT * FROM Library_books WHERE id = %s', (book_id,))
     book = cursor.fetchone()
     if book:
-        cursor.execute('DELETE FROM books WHERE id = %s', (book_id,))
+        cursor.execute('DELETE FROM Library_books WHERE id = %s', (book_id,))
         conn.commit()
         cursor.close()
         conn.close()
